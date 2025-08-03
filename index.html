@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Portfolio</title>
+  <meta name="description" content="LP／バナー／商品サムネのポートフォリオ">
+  <style>
+    :root { --gap:16px; --ink:#111; --muted:#666; }
+    *{box-sizing:border-box} html,body{margin:0;font:16px/1.6 system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;color:var(--ink)}
+    header,footer,main{max-width:1200px;margin:0 auto;padding:var(--gap)}
+    header h1{margin:0 0 8px;font-size:20px}
+    nav a{margin-right:12px;color:inherit;text-decoration:none;opacity:.8} nav a:hover{opacity:1}
+    .grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+    .card{border:1px solid #eee;border-radius:8px;padding:8px;text-decoration:none;color:inherit;background:#fff}
+    .card h3{margin:8px 0 4px;font-size:16px}.meta{margin:0;color:var(--muted);font-size:13px}
+    img{width:100%;height:auto;display:block}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Portfolio</h1>
+    <nav>
+      <a href="#">All</a><a href="#">LP</a><a href="#">Banner</a><a href="#">Thumb</a>
+    </nav>
+  </header>
+
+  <main class="grid">
+    <!-- 画像は後で置き換える。今はダミー方眼を使う -->
+    <a class="card" href="#">
+      <img src="https://dummyimage.com/800x800/eeeeee/aaaaaa&text=1200x1200+sample" alt="作品ダミー">
+      <h3>LP Foo</h3>
+      <p class="meta">役割：デザイン/構成｜目的：新規CV</p>
+    </a>
+    <a class="card" href="#">
+      <img src="https://dummyimage.com/800x800/eeeeee/aaaaaa&text=Banner+sample" alt="作品ダミー">
+      <h3>Banner Bar</h3>
+      <p class="meta">媒体：X広告</p>
+    </a>
+  </main>
+
+  <footer><small>&copy; Your Name</small></footer>
+</body>
+</html>
