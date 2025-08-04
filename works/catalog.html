@@ -55,26 +55,32 @@ main.viewer{
 
 /* ページ1枚ぶん */
 .viewer > section{
-  flex:0 0 100%;
-  scroll-snap-align:start;
-  display:grid;
-  grid-template-columns: auto 360px;   /* ← 1fr から auto に変更 */
-  column-gap: 20px;                    /* お好みで 16–24px */
-  align-items:start;
-  width:min(1160px,100%);
-  margin-inline:auto;
+  flex: 0 0 100%;           /* ← 1画面＝1ページを維持 */
+  scroll-snap-align: start;
+  display: grid;
+  grid-template-columns: auto 360px;   /* 左＝画像は実幅、右＝説明360px */
+  column-gap: 20px;
+  align-items: start;
+
+  /* ここがポイント：中身を“最大1160px”想定で中央へ */
+  padding-left:  max(0px, (100% - 1160px) / 2);
+  padding-right: max(0px, (100% - 1160px) / 2);
 }
 
 .media{ margin:0; min-width:0; }
 .desc { min-width:0; } /* テキストのはみ出しでレイアウトが崩れるのを防ぐ */
 .media img{
   display:block;
-  width:auto;               /* ← 100% をやめる */
-  max-width:780px;          /* 720–820で好み調整 */
-  height:auto;
+  width: auto;              /* ← 100% をやめる */
+  max-width: 780px;         /* 好みで 720–820px */
+  height: auto;
 }
 @media (max-width:960px){
-  .viewer > section{ grid-template-columns: 1fr; }
+  .viewer > section{
+    grid-template-columns: 1fr;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
   .media img{ width:100%; max-width:100%; }
 }
 </style>
