@@ -58,22 +58,26 @@ main.viewer{ max-width:none; width:100%; margin:0; padding:0 }
   flex:0 0 100%;
   scroll-snap-align:start;
   display:grid;
-  grid-template-columns: minmax(0, fit-content(var(--img-max))) var(--desc-w);
+  grid-template-columns: var(--img-max) var(--desc-w);
   column-gap: var(--gap);
   align-items:start;
   justify-content:center;                     /* ← 中央寄せの要 */
-  width:min(var(--page-w), 100%);
+  width: var(--page-w);  /* ← もう固定でいい。レスポンシブはメディアクエリで */
   margin-inline:auto;
 }
 
 .media{ margin:0; min-width:0 }
-.media img{
-  display:block;
-  width:auto;                                 /* 列に合わせて伸ばさない */
-  max-width:var(--img-max);
-  height:auto;
+.media img {
+  display: block;
+  width: 100%;           /* ← これが重要。親（780px）にピッタリ合わせる */
+  height: auto;
+  border-radius: 4px;     /* オプション：角丸で優しさ注入 */
 }
-.desc{ min-width:0 }
+.desc {
+  min-width: 0;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
 
 /* pager ボタン */
 .pager{
