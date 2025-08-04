@@ -33,10 +33,36 @@
 .spread{ scroll-margin-inline: max(16px, (100vw - 1200px)/2); }
 
 /* 既に入れてくれた中央寄せはそのままでOK（再掲しても害なし） */
-.viewer{ padding-inline: max(16px, (100vw - 1200px)/2); }
-.spread{ width:min(1160px,100%); margin-inline:auto; grid-template-columns:minmax(0,1fr) 360px; }
-.media img{ max-width:780px; }
-@media (max-width:960px){ .viewer{padding-inline:12px} .spread{width:100%;grid-template-columns:1fr} .media img{max-width:100%} }
+.viewer{
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  gap: 24px;
+  padding-bottom: 8px;
+  /* 画面が広いときも中央に見える左右ガター */
+  padding-inline: max(16px, (100vw - 1200px) / 2);
+}
+.spread{
+  scroll-snap-align: start;
+  flex: 0 0 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px; /* 画像｜説明 */
+  align-items: start;
+  width: min(1160px, 100%);
+  margin-inline: auto; /* 中央寄せ */
+}
+.media{ margin: 0; }
+.media img{
+  width: 100%;
+  height: auto;
+  display: block;
+  max-width: 780px; /* 好みで 720–820px */
+}
+@media (max-width: 960px){
+  .viewer{ padding-inline: 12px; }
+  .spread{ grid-template-columns: 1fr; width: 100%; }
+  .media img{ max-width: 100%; }
+}
 
 </style>
 </head>
