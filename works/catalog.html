@@ -40,60 +40,7 @@
 
 </style>
 </head>
-<script>
-  // 1) サムネを現在ページに同期
-  const viewer = document.querySelector('.viewer');
-  const spreads = [...document.querySelectorAll('.spread')];
-  const thumbs = [...document.querySelectorAll('.thumbs a')];
-  const thumbById = Object.fromEntries(thumbs.map(a => [a.getAttribute('href').slice(1), a]));
 
-  const io = new IntersectionObserver((entries)=>{
-    // viewer内で6割以上見えているセクションをアクティブに
-    const inView = entries.filter(e=>e.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
-    if(!inView) return;
-    const id = inView.target.id;
-    thumbs.forEach(a=>a.removeAttribute('aria-current'));
-    thumbById[id]?.setAttribute('aria-current','page');
-    history.replaceState(null, '', '#'+id); // URLも追随
-  }, { root: viewer, threshold: [0.6] });
-  spreads.forEach(s=>io.observe(s));
-
-  // 2) 前へ/次へをスムーズスクロール
-  function currentIndex(){
-    // :target があれば優先、なければスクロール位置から推定
-    const t = document.querySelector('.spread:target');
-    if(t) return spreads.indexOf(t);
-    return Math.round(viewer.scrollLeft / viewer.clientWidth);
-  }
-  document.addEventListener('click', (e)=>{
-    if(e.target.matches('.pager .prev, .pager .next')){
-      e.preventDefault();
-      const i = currentIndex();
-      const next = e.target.matches('.prev') ? Math.max(i-1, 0) : Math.min(i+1, spreads.length-1);
-      spreads[next].scrollIntoView({ behavior:'smooth', inline:'start' });
-    }
-  });
-
-  // 3) サムネクリックもスムーズに
-  thumbs.forEach(a=>{
-    a.addEventListener('click', (e)=>{
-      const id = a.getAttribute('href').slice(1);
-      const target = document.getElementById(id);
-      if(target){
-        e.preventDefault();
-        target.scrollIntoView({ behavior:'smooth', inline:'start' });
-      }
-    });
-  });
-
-  // 4) 矢印キーでもナビ
-  document.addEventListener('keydown', (e)=>{
-    if(e.key!=='ArrowLeft' && e.key!=='ArrowRight') return;
-    const i = currentIndex();
-    const next = e.key==='ArrowRight' ? Math.min(i+1, spreads.length-1) : Math.max(i-1, 0);
-    spreads[next].scrollIntoView({ behavior:'smooth', inline:'start' });
-  });
-</script>
 <body>
   <a class="back" href="../">← 一覧へ戻る</a>
 
@@ -230,5 +177,59 @@
       document.getElementById(ids[next]).scrollIntoView({behavior:'smooth', inline:'start'});
     });
   </script>
+  <script>
+  // 1) サムネを現在ページに同期
+  const viewer = document.querySelector('.viewer');
+  const spreads = [...document.querySelectorAll('.spread')];
+  const thumbs = [...document.querySelectorAll('.thumbs a')];
+  const thumbById = Object.fromEntries(thumbs.map(a => [a.getAttribute('href').slice(1), a]));
+
+  const io = new IntersectionObserver((entries)=>{
+    // viewer内で6割以上見えているセクションをアクティブに
+    const inView = entries.filter(e=>e.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
+    if(!inView) return;
+    const id = inView.target.id;
+    thumbs.forEach(a=>a.removeAttribute('aria-current'));
+    thumbById[id]?.setAttribute('aria-current','page');
+    history.replaceState(null, '', '#'+id); // URLも追随
+  }, { root: viewer, threshold: [0.6] });
+  spreads.forEach(s=>io.observe(s));
+
+  // 2) 前へ/次へをスムーズスクロール
+  function currentIndex(){
+    // :target があれば優先、なければスクロール位置から推定
+    const t = document.querySelector('.spread:target');
+    if(t) return spreads.indexOf(t);
+    return Math.round(viewer.scrollLeft / viewer.clientWidth);
+  }
+  document.addEventListener('click', (e)=>{
+    if(e.target.matches('.pager .prev, .pager .next')){
+      e.preventDefault();
+      const i = currentIndex();
+      const next = e.target.matches('.prev') ? Math.max(i-1, 0) : Math.min(i+1, spreads.length-1);
+      spreads[next].scrollIntoView({ behavior:'smooth', inline:'start' });
+    }
+  });
+
+  // 3) サムネクリックもスムーズに
+  thumbs.forEach(a=>{
+    a.addEventListener('click', (e)=>{
+      const id = a.getAttribute('href').slice(1);
+      const target = document.getElementById(id);
+      if(target){
+        e.preventDefault();
+        target.scrollIntoView({ behavior:'smooth', inline:'start' });
+      }
+    });
+  });
+
+  // 4) 矢印キーでもナビ
+  document.addEventListener('keydown', (e)=>{
+    if(e.key!=='ArrowLeft' && e.key!=='ArrowRight') return;
+    const i = currentIndex();
+    const next = e.key==='ArrowRight' ? Math.min(i+1, spreads.length-1) : Math.max(i-1, 0);
+    spreads[next].scrollIntoView({ behavior:'smooth', inline:'start' });
+  });
+</script>
 </body>
 </html>
