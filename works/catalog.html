@@ -91,6 +91,17 @@ main.viewer{ max-width:none; width:100%; margin:0; padding:0 }
 }
 .pager a:hover{ transform:translateY(-1px); border-color:#cfcfcf; box-shadow:0 2px 8px rgba(0,0,0,.06) }
 
+.back{
+  display:flex; justify-content:space-between; align-items:center;
+  gap:12px; margin-top:14px;
+}
+.back a{
+  display:inline-block; padding:.45rem .9rem; text-decoration:none;
+  border:1px solid #ddd; border-radius:999px; background:#fff;
+  transition:transform .12s, box-shadow .12s, border-color .12s;
+}
+.back a:hover{ transform:translateY(-1px); border-color:#cfcfcf; box-shadow:0 2px 8px rgba(0,0,0,.06) }
+
 /* ====== responsive ====== */
 @media (max-width:960px){
   .viewer{ padding-inline:12px }
@@ -103,7 +114,7 @@ main.viewer{ max-width:none; width:100%; margin:0; padding:0 }
 </head>
 
 <body>
-  <a class="back" href="../">← 一覧へ戻る</a>
+  </a><div class="back"><a class="back" href="../">← 一覧へ戻る</a></div>
 
   <header>
     <h1>NYANTERIOR｜カタログ（A4パンフレット）</h1>
