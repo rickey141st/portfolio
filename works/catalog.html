@@ -5,93 +5,93 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>NYANTERIOR｜カタログ（A4パンフ・見開きビュー）</title>
 <style>
-  html, body { overflow-x: hidden; }
-  :root { --gap:16px; --ink:#111; --muted:#666; }
-  *{box-sizing:border-box}
-  body{margin:0;font:16px/1.7 system-ui,"Noto Sans JP",sans-serif;color:var(--ink)}
-  a{color:inherit}
-  a.back{display:inline-block;margin:12px 16px}
+html, body { overflow-x: hidden; }                /* 外側の横スクロールを殺す */
+:root{
+  --ink:#111; --muted:#666;
+  --page-w:1160px;         /* = 780 + 360 + 20(gap) */
+  --img-max:780px;
+  --desc-w:360px;
+  --gap:20px;
+}
+*{ box-sizing:border-box }
+body{ margin:0; font:16px/1.7 system-ui,"Noto Sans JP",sans-serif; color:var(--ink) }
+a{ color:inherit }
+a.back{ display:inline-block; margin:12px 16px }
 
-  header, main, footer {max-width:1200px;margin:0 auto;padding:var(--gap)}
-  header h1{margin:.25rem 0 .5rem;font-size:22px}
-  
-  /* サムネ列：常に上部にいて、揃った見た目に */
+/* ヘッダー/フッターは 1200px でセンター。viewer は除外しておく */
+header, main:not(.viewer), footer { max-width:1200px; margin:0 auto; padding:16px }
+header h1{ margin:.25rem 0 .5rem; font-size:22px }
+
+/* ====== thumbs (sticky + headerと同じガター) ====== */
 .thumbs{
   position:sticky; top:0; z-index:10;
   padding:8px 0;
-  padding-left:  max(16px, (100% - 1200px) / 2);     /* ← 同様に100%基準 */
-  padding-right: max(16px, (100% - 1200px) / 2);
-  background: rgba(255,255,255,.9);
-  backdrop-filter: saturate(140%) blur(6px);
-  display:grid; grid-template-columns:repeat(auto-fill, minmax(120px,1fr));
+  padding-left:  max(16px, (100% - 1200px)/2);
+  padding-right: max(16px, (100% - 1200px)/2);
+  background:rgba(255,255,255,.9);
+  backdrop-filter:saturate(140%) blur(6px);
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
   gap:8px;
 }
 .thumbs a{
   display:block; border:1px solid #e5e5e5; border-radius:8px; overflow:hidden;
-  transition: transform .12s, border-color .12s, box-shadow .12s;
+  transition:transform .12s, border-color .12s, box-shadow .12s;
 }
-.thumbs a:is(:hover,:focus){ transform: translateY(-1px); }
-.thumbs a[aria-current="page"]{ border-color:#0e5d3b; box-shadow:0 0 0 2px rgba(14,93,59,.15); }
-.thumbs img{ width:100%; height:72px; object-fit:cover; display:block; filter:saturate(.92); }
+.thumbs a:is(:hover,:focus){ transform:translateY(-1px) }
+.thumbs a[aria-current="page"]{ border-color:#0e5d3b; box-shadow:0 0 0 2px rgba(14,93,59,.15) }
+.thumbs img{ width:100%; height:72px; object-fit:cover; display:block; filter:saturate(.92) }
 
-/* ハッシュ遷移時にページが“端にくっつかない”よう調整 */
+/* ハッシュ遷移時に“端にくっつかない” */
 .spread{ scroll-margin-inline: max(16px, (100% - 1200px)/2); }
 
-main.viewer{
-  max-width:none; width:100%; margin:0; padding:0; box-sizing:border-box;
-}
+/* ====== horizontal viewer ====== */
+main.viewer{ max-width:none; width:100%; margin:0; padding:0 }
 .viewer{
   display:flex; flex-wrap:nowrap; overflow-x:auto;
   scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch;
   gap:24px; padding-bottom:8px;
-  padding-inline: max(16px, (100% - 1200px) / 2);   /* ← 100vw → 100% に */
-}
-/* ページ1枚ぶん */
-.viewer > section{
-  flex: 0 0 100%;
-  scroll-snap-align: start;
-  display: grid;
-  grid-template-columns: minmax(0, fit-content(780px)) 360px; /* 左=画像(～780)｜右=360 */
-  column-gap: 20px;
-  align-items: start;
-  justify-content: center;            /* ← 余りを左右均等にして中央へ */
-  width: min(1160px, 100%);
-  margin-inline: auto;
-}
-.pager{
-  display:flex;
-  justify-content: space-between;   /* 左右に離す（360pxカラム内で均等） */
-  align-items:center;
-  gap: 12px;
-  margin-top: 14px;
-}
-.pager a{
-  display:inline-block;
-  padding: .45rem .9rem;
-  border: 1px solid #ddd;
-  border-radius: 999px;             /* ピル型 */
-  background: #fff;
-  text-decoration:none;
-  transition: transform .12s, box-shadow .12s, border-color .12s;
-}
-.pager a:hover{
-  transform: translateY(-1px);
-  border-color:#cfcfcf;
-  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  padding-inline: max(16px, (100% - 1200px)/2);    /* ヘッダーと同じ可変ガター */
 }
 
-  
-.media{ margin:0; min-width:0; }
-.desc { min-width:0; } /* テキストのはみ出しでレイアウトが崩れるのを防ぐ */
+/* 1画面＝1ページ。中身は常に中央の塊で出す（ズレ防止の決め打ち） */
+.viewer > section{
+  flex:0 0 100%;
+  scroll-snap-align:start;
+  display:grid;
+  grid-template-columns: minmax(0, fit-content(var(--img-max))) var(--desc-w);
+  column-gap: var(--gap);
+  align-items:start;
+  justify-content:center;                     /* ← 中央寄せの要 */
+  width:min(var(--page-w), 100%);
+  margin-inline:auto;
+}
+
+.media{ margin:0; min-width:0 }
 .media img{
   display:block;
-  width:auto;                          /* 列幅に引き伸ばさない（実寸ベース） */
-  max-width:780px; height:auto;
+  width:auto;                                 /* 列に合わせて伸ばさない */
+  max-width:var(--img-max);
+  height:auto;
 }
+.desc{ min-width:0 }
+
+/* pager ボタン */
+.pager{
+  display:flex; justify-content:space-between; align-items:center;
+  gap:12px; margin-top:14px;
+}
+.pager a{
+  display:inline-block; padding:.45rem .9rem; text-decoration:none;
+  border:1px solid #ddd; border-radius:999px; background:#fff;
+  transition:transform .12s, box-shadow .12s, border-color .12s;
+}
+.pager a:hover{ transform:translateY(-1px); border-color:#cfcfcf; box-shadow:0 2px 8px rgba(0,0,0,.06) }
+
+/* ====== responsive ====== */
 @media (max-width:960px){
-  .viewer{ padding-inline:12px; }
-  .viewer > section{ grid-template-columns:1fr; }
-  .media img{ width:100%; max-width:100%; }
+  .viewer{ padding-inline:12px }
+  .viewer > section{ grid-template-columns:1fr; width:100% }
+  .media img{ width:100%; max-width:100% }
 }
 </style>
 </head>
@@ -219,30 +219,28 @@ main.viewer{
 
   <footer><small>&copy; Rickey141</small></footer>
 
-<!-- 便利：キーボード左右でページ送り -->
 <script>
+  // --- 要素取得 ---
   const viewer  = document.querySelector('.viewer');
   const spreads = [...document.querySelectorAll('.spread')];
   const thumbs  = [...document.querySelectorAll('.thumbs a')];
   const thumbById = Object.fromEntries(thumbs.map(a => [a.getAttribute('href').slice(1), a]));
 
+  // --- 現在ページの管理を IO に統一（scrollLeft 依存をやめる） ---
   let activeIndex = 0;
-
-  // 今見えているページを判定して保持＋サムネ同期
   const io = new IntersectionObserver((entries)=>{
     const best = entries.filter(e=>e.isIntersecting)
-                        .sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
+                        .sort((a,b)=>b.intersectionRatio - a.intersectionRatio)[0];
     if(!best) return;
     activeIndex = spreads.indexOf(best.target);
-
     const id = best.target.id;
     thumbs.forEach(a=>a.removeAttribute('aria-current'));
     thumbById[id]?.setAttribute('aria-current','page');
     history.replaceState(null, '', '#'+id);
-  }, { root: viewer, threshold: [0.6] });
+  }, { root: viewer, threshold:[0.6] });
   spreads.forEach(s=>io.observe(s));
 
-  // 前へ／次へ（クリック）
+  // --- 前へ／次へ（クリック） ---
   document.addEventListener('click', (e)=>{
     if(!e.target.matches('.pager .prev, .pager .next')) return;
     e.preventDefault();
@@ -252,7 +250,7 @@ main.viewer{
     spreads[next].scrollIntoView({ behavior:'smooth', inline:'start' });
   });
 
-  // サムネクリックもスムーズ
+  // --- サムネで移動 ---
   thumbs.forEach(a=>{
     a.addEventListener('click', (e)=>{
       const id = a.getAttribute('href').slice(1);
@@ -261,7 +259,7 @@ main.viewer{
     });
   });
 
-  // 矢印キーでもナビ
+  // --- キーボード左右でも移動 ---
   document.addEventListener('keydown', (e)=>{
     if(e.key!=='ArrowLeft' && e.key!=='ArrowRight') return;
     const next = e.key==='ArrowRight'
