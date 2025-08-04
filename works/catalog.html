@@ -14,50 +14,86 @@
   header, main, footer {max-width:1200px;margin:0 auto;padding:var(--gap)}
   header h1{margin:.25rem 0 .5rem;font-size:22px}
 
-  /* サムネ（元画像を縮小して使うので別途作成不要） */
-  .thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
-  .thumbs a{display:block;border:1px solid #eee;border-radius:8px;overflow:hidden}
-  .thumbs img{width:100%;height:80px;object-fit:cover;display:block;filter:saturate(.9)}
-
-  /* ビューア（横スクロール＋スナップ） */
-  .viewer{margin:24px 0;overflow-x:auto;scroll-snap-type:x mandatory;display:flex;gap:24px;padding-bottom:8px}
-  .spread{scroll-snap-align:start;flex:0 0 100%;display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:clamp(12px,2vw,28px);align-items:start}
-  .media{margin:0}
-  .media img{width:100%;height:auto;display:block;max-width:clamp(560px,58vw,820px);border:1px solid #eee;border-radius:8px;background:#fff}
-  .desc h2{margin:.2rem 0 .4rem;font-size:20px}
-  .desc p{margin:.25rem 0}
-  .desc .meta{color:var(--muted);font-size:14px}
-  .pager{display:flex;gap:8px;margin-top:8px}
-  .pager a{border:1px solid #ddd;padding:.3rem .6rem;border-radius:.5rem;text-decoration:none}
-
-  /* ビューアの左右に可変ガターを作る = 画面幅が広い時も中央表示 */
-.viewer{
-  /* 1200px レイアウトのとき両端に自動で余白を作る */
-  padding-inline: max(16px, (100vw - 1200px) / 2);
+  /* サムネ列：常に上部にいて、揃った見た目に */
+.thumbs{
+  position: sticky; top: 0; z-index: 10;
+  padding: 8px 0; margin-top: 8px;
+  background: rgba(255,255,255,.9);
+  backdrop-filter: saturate(140%) blur(6px);
 }
-
-/* 各ページ(.spread)を中央寄せし、総幅を制限 */
-.spread{
-  width: min(1160px, 100%);      /* ＝中央に収まる最大幅 */
-  margin-inline: auto;           /* ← 中央寄せの要 */
-  grid-template-columns: minmax(0, 1fr) 360px; /* 画像｜解説の比率を安定化 */
-  justify-content: center;       /* 念のため中央揃え */
+.thumbs a{
+  display:block; border:1px solid #e5e5e5; border-radius:8px; overflow:hidden;
+  transition: transform .12s, border-color .12s, box-shadow .12s;
 }
+.thumbs a:is(:hover,:focus){ transform: translateY(-1px); }
+.thumbs a[aria-current="page"]{ border-color:#0e5d3b; box-shadow:0 0 0 2px rgba(14,93,59,.15); }
+.thumbs img{ width:100%; height:72px; object-fit:cover; display:block; filter:saturate(.92); }
 
-/* 画像の上限幅（お好みで調整：760〜820の間が見やすい） */
-.media img{ max-width: 780px; }
+/* ハッシュ遷移時にページが“端にくっつかない”よう調整 */
+.spread{ scroll-margin-inline: max(16px, (100vw - 1200px)/2); }
 
-/* スマホは縦積み＋左右パディング縮小 */
-@media (max-width: 960px){
-  .viewer{ padding-inline: 12px; }
-  .spread{ width: 100%; grid-template-columns: 1fr; }
-  .media img{ max-width: 100%; }
-}
-  
-  @media (max-width:960px){ .spread{grid-template-columns:1fr} .media img{max-width:100%} }
-  .note{color:var(--muted);font-size:14px}
+/* 既に入れてくれた中央寄せはそのままでOK（再掲しても害なし） */
+.viewer{ padding-inline: max(16px, (100vw - 1200px)/2); }
+.spread{ width:min(1160px,100%); margin-inline:auto; grid-template-columns:minmax(0,1fr) 360px; }
+.media img{ max-width:780px; }
+@media (max-width:960px){ .viewer{padding-inline:12px} .spread{width:100%;grid-template-columns:1fr} .media img{max-width:100%} }
+
 </style>
 </head>
+<script>
+  // 1) サムネを現在ページに同期
+  const viewer = document.querySelector('.viewer');
+  const spreads = [...document.querySelectorAll('.spread')];
+  const thumbs = [...document.querySelectorAll('.thumbs a')];
+  const thumbById = Object.fromEntries(thumbs.map(a => [a.getAttribute('href').slice(1), a]));
+
+  const io = new IntersectionObserver((entries)=>{
+    // viewer内で6割以上見えているセクションをアクティブに
+    const inView = entries.filter(e=>e.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
+    if(!inView) return;
+    const id = inView.target.id;
+    thumbs.forEach(a=>a.removeAttribute('aria-current'));
+    thumbById[id]?.setAttribute('aria-current','page');
+    history.replaceState(null, '', '#'+id); // URLも追随
+  }, { root: viewer, threshold: [0.6] });
+  spreads.forEach(s=>io.observe(s));
+
+  // 2) 前へ/次へをスムーズスクロール
+  function currentIndex(){
+    // :target があれば優先、なければスクロール位置から推定
+    const t = document.querySelector('.spread:target');
+    if(t) return spreads.indexOf(t);
+    return Math.round(viewer.scrollLeft / viewer.clientWidth);
+  }
+  document.addEventListener('click', (e)=>{
+    if(e.target.matches('.pager .prev, .pager .next')){
+      e.preventDefault();
+      const i = currentIndex();
+      const next = e.target.matches('.prev') ? Math.max(i-1, 0) : Math.min(i+1, spreads.length-1);
+      spreads[next].scrollIntoView({ behavior:'smooth', inline:'start' });
+    }
+  });
+
+  // 3) サムネクリックもスムーズに
+  thumbs.forEach(a=>{
+    a.addEventListener('click', (e)=>{
+      const id = a.getAttribute('href').slice(1);
+      const target = document.getElementById(id);
+      if(target){
+        e.preventDefault();
+        target.scrollIntoView({ behavior:'smooth', inline:'start' });
+      }
+    });
+  });
+
+  // 4) 矢印キーでもナビ
+  document.addEventListener('keydown', (e)=>{
+    if(e.key!=='ArrowLeft' && e.key!=='ArrowRight') return;
+    const i = currentIndex();
+    const next = e.key==='ArrowRight' ? Math.min(i+1, spreads.length-1) : Math.max(i-1, 0);
+    spreads[next].scrollIntoView({ behavior:'smooth', inline:'start' });
+  });
+</script>
 <body>
   <a class="back" href="../">← 一覧へ戻る</a>
 
@@ -91,7 +127,7 @@
         <p class="marketing">自然割れは<strong>合成樹脂不使用＝自然乾燥の証</strong>であり、強度・耐久に致命的でないことを明示。補修前後の比較と1年保証を併記して、<strong>高価格帯特有の不安を先回り解消</strong>します。</p>
         <p class="design">黒基調に木目のテクスチャ。要点のみ落ち着いた赤・深緑でハイライトし、素材感と上質さを両立。</p>
         <p class="meta">要素：自然割れの仕組み／強度への影響なし／補修対応／1年保証</p>
-        <div class="pager"><a href="#p7">← 前へ</a><a href="#p2">次へ →</a></div>
+        <div class="pager"><a class="prev" href="#p7">← 前へ</a><a class="next" href="#p2">次へ →</a></div>
       </div>
     </section>
 
@@ -106,7 +142,7 @@
         <p class="marketing">工具不要・番手シール順の<strong>組み立て手順</strong>を図解。直販・配送Q&amp;Aも同一面で解消し、<strong>カート落ち要因</strong>（不安）を削ります。</p>
         <p class="design">モノトーンのフロー＋生成りの木肌で静かな品位。黒背景の作品群で<strong>猫らしい造形</strong>を一望。</p>
         <p class="meta">要素：工程図／直販表記／QR導線／完成群像</p>
-        <div class="pager"><a href="#p1">← 前へ</a><a href="#p3">次へ →</a></div>
+        <div class="pager"><a class="prev" href="#p1">← 前へ</a><a class="next" href="#p3">次へ →</a></div>
       </div>
     </section>
 
@@ -121,7 +157,7 @@
         <p class="marketing">天然成分の<strong>8大効果</strong>（抗菌・消臭・調湿ほか）で「高価格の理由」を理屈化し、<strong>お部屋森林浴</strong>という体験価値へ接続。比較優位を明確にします。</p>
         <p class="design">猫の穏やかな表情・森林・製材の写真を低彩度で統一。深緑アクセントで落ち着いた高級感を維持。</p>
         <p class="meta">要素：素材提案／科学的根拠／ブランド理念</p>
-        <div class="pager"><a href="#p2">← 前へ</a><a href="#p4">次へ →</a></div>
+        <div class="pager"><a class="prev" href="#p2">← 前へ</a><a class="next" href="#p4">次へ →</a></div>
       </div>
     </section>
 
@@ -134,7 +170,7 @@
         <h2>基本モデル群：最小限の比較で迷いを減らす。</h2>
         <p class="marketing">幅・奥行・全高・梱包数など<strong>選択に直結する項目</strong>を統一フォーマットで表示。用途アイコンで瞬時にマッチング可能に。</p>
         <p class="design">黒地×木肌のコントラストで造形を際立たせつつ、余白を確保。価格やSPECは視線が泳がない位置に固定。</p>
-        <div class="pager"><a href="#p3">← 前へ</a><a href="#p5">次へ →</a></div>
+        <div class="pager"><a class="prev" href="#p3">← 前へ</a><a class="next" href="#p5">次へ →</a></div>
       </div>
     </section>
 
@@ -147,7 +183,7 @@
         <h2>遊びの自由度を、ラインアップで表現。</h2>
         <p class="marketing">“たくさん遊ぼう”のコアメッセージで<strong>機能価値→情緒価値</strong>へ。設置天井高や突っ張り式の可否など、購入判断の要件にフォーカス。</p>
         <p class="design">等照度のレタッチで質感を統一。猫らしい穴／段差の造形を邪魔しない<strong>静かな黒背景</strong>。</p>
-        <div class="pager"><a href="#p4">← 前へ</a><a href="#p6">次へ →</a></div>
+        <div class="pager"><a class="prev" href="#p4">← 前へ</a><a class="next" href="#p6">次へ →</a></div>
       </div>
     </section>
 
@@ -160,7 +196,7 @@
         <h2>大型猫対応：安全と安定を数値で担保。</h2>
         <p class="marketing">幅・奥行・全高・支柱ピッチ等を明解に。<strong>大型向け</strong>アイコンで対象を明示し、サイズ不安を削ります。</p>
         <p class="design">赤みは抑えたグレージュ寄りの木肌で上品に。文字ウェイトは細めで視覚ノイズを最小化。</p>
-        <div class="pager"><a href="#p5">← 前へ</a><a href="#p7">次へ →</a></div>
+        <div class="pager"><a class="prev" href="#p5">← 前へ</a><a class="next" href="#p7">次へ →</a></div>
       </div>
     </section>
 
@@ -173,7 +209,7 @@
         <h2>組み替えの自由＝長く使える価値。</h2>
         <p class="marketing">住環境の変化に合わせて<strong>拡張・再構成</strong>できる点を組み替え例で視覚化。長期使用の納得感を作ります。</p>
         <p class="design">黒地にピンクを帯びた杉の木肌でコントラストを丁寧に調整。パーツのシルエットが読みやすい角度で統一。</p>
-        <div class="pager"><a href="#p6">← 前へ</a><a href="#p1">先頭へ ↑</a></div>
+        <div class="pager"><a class="prev" href="#p6">← 前へ</a><a class="next" href="#p1">次へ →</a></div>
       </div>
     </section>
 
