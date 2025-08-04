@@ -13,7 +13,7 @@
 
   header, main, footer {max-width:1200px;margin:0 auto;padding:var(--gap)}
   header h1{margin:.25rem 0 .5rem;font-size:22px}
-
+  
   /* サムネ列：常に上部にいて、揃った見た目に */
 .thumbs{
   position: sticky; top: 0; z-index: 10;
@@ -32,7 +32,13 @@
 /* ハッシュ遷移時にページが“端にくっつかない”よう調整 */
 .spread{ scroll-margin-inline: max(16px, (100vw - 1200px)/2); }
 
-/* 既に入れてくれた中央寄せはそのままでOK（再掲しても害なし） */
+main.viewer{
+  max-width: none;   /* 1200px制限を外す */
+  width: 100vw;      /* 画面幅いっぱいを器にする */
+  margin: 0;
+  padding: 0;        /* 余白は .viewer の padding-inline で作る */
+  box-sizing: border-box;
+}
 .viewer{
   display:flex;
   flex-wrap:nowrap;
@@ -55,15 +61,7 @@
   width:min(1160px, 100%);
   margin-inline:auto;
 }
-.spread{
-  scroll-snap-align: start;
-  flex: 0 0 100%;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 360px; /* 画像｜説明 */
-  align-items: start;
-  width: min(1160px, 100%);
-  margin-inline: auto; /* 中央寄せ */
-}
+
 .media{ margin:0; min-width:0; }
 .desc { min-width:0; } /* テキストのはみ出しでレイアウトが崩れるのを防ぐ */
 .media img{
