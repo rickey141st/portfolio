@@ -34,13 +34,26 @@
 
 /* 既に入れてくれた中央寄せはそのままでOK（再掲しても害なし） */
 .viewer{
-  display: flex;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  gap: 24px;
-  padding-bottom: 8px;
-  /* 画面が広いときも中央に見える左右ガター */
+  display:flex;
+  flex-wrap:nowrap;
+  overflow-x:auto;
+  scroll-snap-type:x mandatory;
+  gap:24px;
+  padding-bottom:8px;
+  /* 画面が広い時も中央に見える“可変ガター”を作る */
   padding-inline: max(16px, (100vw - 1200px) / 2);
+}
+
+/* ページ1枚ぶん（再掲＋微調整） */
+.viewer > section{
+  flex:0 0 100%;
+  scroll-snap-align:start;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 360px; /* 画像｜説明 */
+  gap: clamp(12px, 2vw, 28px);               /* ← 余白が消えていたので復活 */
+  align-items:start;
+  width:min(1160px, 100%);
+  margin-inline:auto;
 }
 .spread{
   scroll-snap-align: start;
@@ -51,19 +64,18 @@
   width: min(1160px, 100%);
   margin-inline: auto; /* 中央寄せ */
 }
-.media{ margin: 0; }
+.media{ margin:0; min-width:0; }
+.desc { min-width:0; } /* テキストのはみ出しでレイアウトが崩れるのを防ぐ */
 .media img{
-  width: 100%;
-  height: auto;
-  display: block;
-  max-width: 780px; /* 好みで 720–820px */
+  width:100%; height:auto; display:block;
+  max-width:780px;  /* お好みで 720–820 */
 }
-@media (max-width: 960px){
-  .viewer{ padding-inline: 12px; }
-  .spread{ grid-template-columns: 1fr; width: 100%; }
-  .media img{ max-width: 100%; }
+@media (max-width:960px){
+  main.viewer{ width:100%; }        /* SPはvwの誤差を避ける */
+  .viewer{ padding-inline:12px; }
+  .viewer > section{ grid-template-columns:1fr; width:100%; }
+  .media img{ max-width:100%; }
 }
-
 </style>
 </head>
 
