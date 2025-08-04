@@ -5,18 +5,87 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Portfolio</title>
   <meta name="description" content="LP／バナー／商品サムネのポートフォリオ">
-  <style>
-    :root { --gap:16px; --ink:#111; --muted:#666; }
-    *{box-sizing:border-box} html,body{margin:0;font:16px/1.6 system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;color:var(--ink)}
-    header,footer,main{max-width:1200px;margin:0 auto;padding:var(--gap)}
-    header h1{margin:0 0 8px;font-size:20px}
-    nav a{margin-right:12px;color:inherit;text-decoration:none;opacity:.8} nav a:hover{opacity:1}
-    .grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
-    .card{border:1px solid #eee;border-radius:8px;padding:8px;text-decoration:none;color:inherit;background:#fff}
-    .card h3{margin:8px 0 4px;font-size:16px}.meta{margin:0;color:var(--muted);font-size:13px}
-    .card-image {width: 100%; aspect-ratio: 1 / 1; background-size: cover; background-position: center;}
-    img{width:100%;height:auto;display:block}
-  </style>
+<style>
+  :root {
+    --gap: 16px;
+    --ink: #111;
+    --muted: #666;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html, body {
+    margin: 0;
+    font: 16px/1.6 system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;
+    color: var(--ink);
+  }
+
+  header, footer, main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--gap);
+  }
+
+  header h1 {
+    margin: 0 0 8px;
+    font-size: 20px;
+  }
+
+  nav a {
+    margin-right: 12px;
+    color: inherit;
+    text-decoration: none;
+    opacity: 0.8;
+  }
+
+  nav a:hover {
+    opacity: 1;
+  }
+
+  .grid {
+    display: grid;
+    gap: var(--gap);
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+
+  .card {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 8px;
+    text-decoration: none;
+    color: inherit;
+    background: #fff;
+  }
+
+  .card h3 {
+    margin: 8px 0 4px;
+    font-size: 16px;
+  }
+
+  .meta {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  /* 👇 正方形画像ここから */
+  .card-image {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: 4px;
+  }
+
+  .card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+</style>
+
 </head>
 <body>
   <header class="site-header">
@@ -29,28 +98,35 @@
     </nav>
   </header>
 
-  <main class="grid">
-    <!-- 画像は後で置き換える。今はダミー方眼を使う -->
-    <a class="card" href="works/cat_litter.html">
+<main class="grid">
+  <a class="card" href="works/cat_litter.html">
+    <div class="card-image">
       <img src="img/250325cs_1.jpg" alt="猫砂LP">
-      <h3>LP制作（猫砂）</h3>
-      <p class="meta">役割：デザイン/構成｜目的：新規CV</p>
-    </a>
-    <a class="card" href="works/flyer.html">
+    </div>
+    <h3>LP制作（猫砂）</h3>
+    <p class="meta">役割：デザイン/構成｜目的：新規CV</p>
+  </a>
+
+  <a class="card" href="works/flyer.html">
+    <div class="card-image">
       <img src="img/240919_lt1.webp" alt="ふるさと納税フライヤー">
-      <h3>A4フライヤー（ふるさと納税返礼品）</h3>
-      <p class="meta">役割：デザイン/構成｜目的：リピーター購入</p>
-    </a>
-    <a class="card" data-cat="catalog pamphlet a4" href="works/catalog.html"
-   aria-label="カタログ：NYANTERIOR A4パンフ">
-  <!-- サムネは暫定で表紙画像を使用。軽くしたければ後述のthumbに差し替え -->
-  <img src="img/230306_ct_1-16.jpg"
-       alt="NYANTERIORカタログ表紙（天日乾燥の解説ページ）"
-       loading="lazy" decoding="async">
-  <h3>猫タワーカタログ（A4パンフ）</h3>
-  <p class="meta">用途：店頭配布・同梱｜ページもの</p>
-</a>
-  </main>
+    </div>
+    <h3>A4フライヤー（ふるさと納税返礼品）</h3>
+    <p class="meta">役割：デザイン/構成｜目的：リピーター購入</p>
+  </a>
+
+  <a class="card" data-cat="catalog pamphlet a4" href="works/catalog.html"
+     aria-label="カタログ：NYANTERIOR A4パンフ">
+    <div class="card-image">
+      <img src="img/230306_ct_1-16.jpg"
+           alt="NYANTERIORカタログ表紙（天日乾燥の解説ページ）"
+           loading="lazy" decoding="async">
+    </div>
+    <h3>猫タワーカタログ（A4パンフ）</h3>
+    <p class="meta">用途：店頭配布・同梱｜ページもの</p>
+  </a>
+</main>
+
 
   <footer><small>&copy; Rickey141</small></footer>
 </body>
