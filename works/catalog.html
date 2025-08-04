@@ -57,16 +57,15 @@ main.viewer{
 
 /* ページ1枚ぶん */
 .viewer > section{
-  flex: 0 0 100%;           /* ← 1画面＝1ページを維持 */
+  flex: 0 0 100%;
   scroll-snap-align: start;
   display: grid;
-  grid-template-columns: auto 360px;   /* 左＝画像は実幅、右＝説明360px */
+  grid-template-columns: minmax(0, fit-content(780px)) 360px; /* ←実幅～最大780 */
   column-gap: 20px;
   align-items: start;
-
-  /* ここがポイント：中身を“最大1160px”想定で中央へ */
-  padding-left:  max(0px, (100% - 1160px) / 2);
-  padding-right: max(0px, (100% - 1160px) / 2);
+  justify-content: center;          /* ← 余りを左右均等に配分＝中央寄せ */
+  width: min(1160px, 100%);
+  margin-inline: auto;
 }
 
 .pager{
@@ -95,17 +94,13 @@ main.viewer{
 .media{ margin:0; min-width:0; }
 .desc { min-width:0; } /* テキストのはみ出しでレイアウトが崩れるのを防ぐ */
 .media img{
-  display:block;
-  width: auto;              /* ← 100% をやめる */
-  max-width: 780px;         /* 好みで 720–820px */
+  display: block;
+  width: auto;                      /* 伸ばさない（実寸ベース） */
+  max-width: 780px;
   height: auto;
 }
 @media (max-width:960px){
-  .viewer > section{
-    grid-template-columns: 1fr;
-    padding-left: 12px;
-    padding-right: 12px;
-  }
+  .viewer > section{ grid-template-columns: 1fr; }
   .media img{ width:100%; max-width:100%; }
 }
 </style>
@@ -234,7 +229,7 @@ main.viewer{
 
   <footer><small>&copy; Rickey141</small></footer>
 
-  <!-- 便利：キーボード左右でページ送り -->
+<!-- 便利：キーボード左右でページ送り -->
   <script>
     document.addEventListener('keydown', e=>{
       if(!['ArrowLeft','ArrowRight'].includes(e.key)) return;
@@ -245,57 +240,55 @@ main.viewer{
       document.getElementById(ids[next]).scrollIntoView({behavior:'smooth', inline:'start'});
     });
   </script>
-  <script>
-  // 1) サムネを現在ページに同期
-  const viewer = document.querySelector('.viewer');
+<script>
+  const viewer  = document.querySelector('.viewer');
   const spreads = [...document.querySelectorAll('.spread')];
-  const thumbs = [...document.querySelectorAll('.thumbs a')];
+  const thumbs  = [...document.querySelectorAll('.thumbs a')];
   const thumbById = Object.fromEntries(thumbs.map(a => [a.getAttribute('href').slice(1), a]));
 
+  let activeIndex = 0;
+
+  // いま見えているページを判定して保持＋サムネ同期
   const io = new IntersectionObserver((entries)=>{
-    // viewer内で6割以上見えているセクションをアクティブに
-    const inView = entries.filter(e=>e.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
-    if(!inView) return;
-    const id = inView.target.id;
+    // 一番見えている spread を採用
+    const best = entries
+      .filter(e=>e.isIntersecting)
+      .sort((a,b)=>b.intersectionRatio - a.intersectionRatio)[0];
+    if (!best) return;
+    activeIndex = spreads.indexOf(best.target);
+
+    const id = best.target.id;
     thumbs.forEach(a=>a.removeAttribute('aria-current'));
     thumbById[id]?.setAttribute('aria-current','page');
-    history.replaceState(null, '', '#'+id); // URLも追随
+    history.replaceState(null, '', '#'+id);
   }, { root: viewer, threshold: [0.6] });
   spreads.forEach(s=>io.observe(s));
 
-  // 2) 前へ/次へをスムーズスクロール
-  function currentIndex(){
-    // :target があれば優先、なければスクロール位置から推定
-    const t = document.querySelector('.spread:target');
-    if(t) return spreads.indexOf(t);
-    return Math.round(viewer.scrollLeft / viewer.clientWidth);
-  }
+  // 前へ／次へ
   document.addEventListener('click', (e)=>{
-    if(e.target.matches('.pager .prev, .pager .next')){
-      e.preventDefault();
-      const i = currentIndex();
-      const next = e.target.matches('.prev') ? Math.max(i-1, 0) : Math.min(i+1, spreads.length-1);
-      spreads[next].scrollIntoView({ behavior:'smooth', inline:'start' });
-    }
+    if(!e.target.matches('.pager .prev, .pager .next')) return;
+    e.preventDefault();
+    const next = e.target.matches('.prev')
+      ? Math.max(activeIndex - 1, 0)
+      : Math.min(activeIndex + 1, spreads.length - 1);
+    spreads[next].scrollIntoView({ behavior:'smooth', inline:'start' });
   });
 
-  // 3) サムネクリックもスムーズに
+  // サムネもスムーズスクロール
   thumbs.forEach(a=>{
     a.addEventListener('click', (e)=>{
       const id = a.getAttribute('href').slice(1);
-      const target = document.getElementById(id);
-      if(target){
-        e.preventDefault();
-        target.scrollIntoView({ behavior:'smooth', inline:'start' });
-      }
+      const t = document.getElementById(id);
+      if(t){ e.preventDefault(); t.scrollIntoView({behavior:'smooth', inline:'start'}); }
     });
   });
 
-  // 4) 矢印キーでもナビ
+  // キーボード左右
   document.addEventListener('keydown', (e)=>{
     if(e.key!=='ArrowLeft' && e.key!=='ArrowRight') return;
-    const i = currentIndex();
-    const next = e.key==='ArrowRight' ? Math.min(i+1, spreads.length-1) : Math.max(i-1, 0);
+    const next = e.key==='ArrowRight'
+      ? Math.min(activeIndex + 1, spreads.length - 1)
+      : Math.max(activeIndex - 1, 0);
     spreads[next].scrollIntoView({ behavior:'smooth', inline:'start' });
   });
 </script>
