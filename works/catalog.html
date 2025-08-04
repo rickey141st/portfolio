@@ -30,6 +30,30 @@
   .pager{display:flex;gap:8px;margin-top:8px}
   .pager a{border:1px solid #ddd;padding:.3rem .6rem;border-radius:.5rem;text-decoration:none}
 
+  /* ビューアの左右に可変ガターを作る = 画面幅が広い時も中央表示 */
+.viewer{
+  /* 1200px レイアウトのとき両端に自動で余白を作る */
+  padding-inline: max(16px, (100vw - 1200px) / 2);
+}
+
+/* 各ページ(.spread)を中央寄せし、総幅を制限 */
+.spread{
+  width: min(1160px, 100%);      /* ＝中央に収まる最大幅 */
+  margin-inline: auto;           /* ← 中央寄せの要 */
+  grid-template-columns: minmax(0, 1fr) 360px; /* 画像｜解説の比率を安定化 */
+  justify-content: center;       /* 念のため中央揃え */
+}
+
+/* 画像の上限幅（お好みで調整：760〜820の間が見やすい） */
+.media img{ max-width: 780px; }
+
+/* スマホは縦積み＋左右パディング縮小 */
+@media (max-width: 960px){
+  .viewer{ padding-inline: 12px; }
+  .spread{ width: 100%; grid-template-columns: 1fr; }
+  .media img{ max-width: 100%; }
+}
+  
   @media (max-width:960px){ .spread{grid-template-columns:1fr} .media img{max-width:100%} }
   .note{color:var(--muted);font-size:14px}
 </style>
