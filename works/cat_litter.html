@@ -34,17 +34,17 @@
 @media (max-width: 960px){
   .block{ grid-template-columns: 1fr; }
 }
-.back {
-  display: inline-block;
-  margin: 12px 16px;
-  color: var(--ink);
-  text-decoration: none;
-  font-weight: bold;
-  border: 1px solid #ccc;
-  padding: 6px 12px;
-  border-radius: 4px;
-  background: #f8f8f8;
+
+.back{
+  display:flex; justify-content:space-between; align-items:center;
+  gap:12px; margin-top:14px;
 }
+.back a{
+  display:inline-block; padding:.45rem .9rem; text-decoration:none;
+  border:1px solid #ddd; border-radius:999px; background:#fff;
+  transition:transform .12s, box-shadow .12s, border-color .12s;
+}
+.back a:hover{ transform:translateY(-1px); border-color:#cfcfcf; box-shadow:0 2px 8px rgba(0,0,0,.06) }
   </style>
 </head>
   
